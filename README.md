@@ -10,13 +10,24 @@ Intregrantes:
 <Rodrigo Pavão Coffani Nunes - 800345>
 <Cristian César Martins - 799714>
 
+- Instalar o Java 20
+
+https://www.oracle.com/java/technologies/downloads/
+
+- Pedir para instalar o .deb e colocar no alternatives a referencia para o jdk_20
+
+	sudo apt install ~/Downloads/jdk-20_linux-x64_bin.deb
+	sudo update-alternatives --install /usr/bin/java java /usr/lib/jvm/jdk-20/bin/java 1
+	sudo update-alternatives --install /usr/bin/javac javac /usr/lib/jvm/jdk-20/bin/javac 1
+	sudo update-alternatives --install /usr/bin/jar jar /usr/lib/jvm/jdk-20/bin/jar 1
+
 
 - Códigos para trocar versão do Java
 	sudo update-alternatives --config java
 	sudo update-alternatives --config javac
 	sudo update-alternatives --config jar
 
-Lembrar de mudar a versão em Preferences>Java>Installed JREs, se não aparecer o java 20, adicionar a pasta usr/lib/java/jdk20
+Lembrar de mudar a versão em Preferences>Java>Installed JREs, se não aparecer o jdk 20, adicionar a pasta usr/lib/java/jdk20
 
 Caso o Jabref não apareça no Eclipse:
 - Ir até a pasta do jabref e rodar
