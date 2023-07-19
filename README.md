@@ -1,14 +1,19 @@
 # DC-UFSCar-ES2-202301-Grupo-CGRVV-
 Trabalho de Engenharia de Software 2 
 
-Owner - Vitor Matheus da Silva
+- Owner - Vitor Matheus da Silva
 
-Intregrantes:
+- Intregrantes:
+
+```
 <Gabriel Lourenço de Paula Graton - 800432>
 <Vitor Matheus da SIlva - 800260>
 <Vitor Enzo Araujo Costa - 802123>
 <Rodrigo Pavão Coffani Nunes - 800345>
 <Cristian César Martins - 799714>
+
+```
+
 
 - Instalar o Java 20
 
@@ -42,6 +47,7 @@ Caso o Jabref não apareça no Eclipse:
 
 - Procurar o arquivo org.jabref.cli.Launcher e apertar com o botão direito -> Run as > Run Config
 - Em argumentos colocar em VM arguments:
+- IMPORTANTE, tente rodar sem usar os argumentos abaixo, uma vez que é possível dado a existência do ./gradlew
 ```
      --add-exports javafx.controls/com.sun.javafx.scene.control=org.jabref
      --add-exports org.controlsfx.controls/impl.org.controlsfx.skin=org.jabref
