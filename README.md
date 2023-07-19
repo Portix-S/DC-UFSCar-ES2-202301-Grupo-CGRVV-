@@ -16,26 +16,40 @@ https://www.oracle.com/java/technologies/downloads/
 
 - Pedir para instalar o .deb e colocar no alternatives a referencia para o jdk_20
 
+```
 	sudo apt install ~/Downloads/jdk-20_linux-x64_bin.deb
 	sudo update-alternatives --install /usr/bin/java java /usr/lib/jvm/jdk-20/bin/java 1
 	sudo update-alternatives --install /usr/bin/javac javac /usr/lib/jvm/jdk-20/bin/javac 1
 	sudo update-alternatives --install /usr/bin/jar jar /usr/lib/jvm/jdk-20/bin/jar 1
 
+```
+
 
 - Códigos para trocar versão do Java
+
+
+```
 	sudo update-alternatives --config java
 	sudo update-alternatives --config javac
 	sudo update-alternatives --config jar
 
-Lembrar de mudar a versão em Preferences>Java>Installed JREs, se não aparecer o jdk 20, adicionar a pasta usr/lib/java/jdk20
-
+```
 Caso o Jabref não apareça no Eclipse:
 - Ir até a pasta do jabref e rodar
+
+```
 	./gradlew run
-e 
 	./gradlew eclipse
+
+```
+
+
+- Ao abrir o eclipse: Lembrar de mudar a versão em Preferences>Java>Installed JREs, se não aparecer o jdk 20, adicionar a pasta usr/lib/java/jdk20
+
 - Procurar o arquivo org.jabref.cli.Launcher e apertar com o botão direito -> Run as > Run Config
 - Em argumentos colocar em VM arguments:
+
+```
      --add-exports javafx.controls/com.sun.javafx.scene.control=org.jabref
      --add-exports org.controlsfx.controls/impl.org.controlsfx.skin=org.jabref
      --add-exports javafx.graphics/com.sun.javafx.scene=org.controlsfx.controls
@@ -53,5 +67,5 @@ e
      --add-exports javafx.graphics/com.sun.javafx.stage=com.jfoenix
      --add-exports com.oracle.truffle.regex/com.oracle.truffle.regex=org.graalvm.truffle
      --patch-module org.jabref=build/resources/main
-
+```
 
