@@ -40,7 +40,6 @@ Caso o Jabref não apareça no Eclipse:
 ```
 	./gradlew run
 	./gradlew eclipse
-
 ```
 
 
