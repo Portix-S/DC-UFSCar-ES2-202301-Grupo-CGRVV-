@@ -39,7 +39,7 @@ jobs:
         with:
           reporter: github-pr-review
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          checkstyle_config: 'config/checkstyle/checkstyle_reviewdog.xml'
+          checkstyle_config: 'jabref/config/checkstyle/checkstyle_reviewdog.xml'
           checkstyle_version: '10.3'
       - name: Run checkstyle using gradle
         run: ./gradlew checkstyleMain checkstyleTest checkstyleJmh
