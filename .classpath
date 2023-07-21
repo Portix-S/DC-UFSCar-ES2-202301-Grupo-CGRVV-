@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="src" path="jabref/buildSrc/src/copied/java"/>
+	<classpathentry kind="src" path="jabref/src/jmh/java"/>
+	<classpathentry kind="src" path="jabref/src/main/java"/>
+	<classpathentry kind="src" path="jabref/src/test/java"/>
+	<classpathentry kind="lib" path="jabref/gradle/wrapper/gradle-wrapper.jar"/>
+	<classpathentry kind="lib" path="jabref/lib/fastparse-2.3.3.jar"/>
+	<classpathentry kind="lib" path="jabref/lib/geny-0.6.10.jar"/>
+	<classpathentry kind="lib" path="jabref/lib/icu4j-src.jar"/>
+	<classpathentry kind="lib" path="jabref/lib/icu4j.jar"/>
+	<classpathentry kind="lib" path="jabref/lib/sourcecode-0.2.3.jar"/>
+	<classpathentry kind="output" path="jabref/buildSrc/build/classes/java/main"/>
+</classpath>
