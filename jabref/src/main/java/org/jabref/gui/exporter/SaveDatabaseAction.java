@@ -6,6 +6,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.charset.UnsupportedCharsetException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -29,6 +30,8 @@ import org.jabref.logic.exporter.BibWriter;
 import org.jabref.logic.exporter.BibtexDatabaseWriter;
 import org.jabref.logic.exporter.SaveConfiguration;
 import org.jabref.logic.exporter.SaveException;
+import org.jabref.logic.integrity.IntegrityCheck;
+import org.jabref.logic.integrity.IntegrityMessage;
 import org.jabref.logic.l10n.Encodings;
 import org.jabref.logic.l10n.Localization;
 import org.jabref.logic.shared.DatabaseLocation;
@@ -188,6 +191,7 @@ public class SaveDatabaseAction {
     }
 
     private boolean save(Path targetPath, SaveDatabaseMode mode) {
+
         if (mode == SaveDatabaseMode.NORMAL) {
             dialogService.notify(String.format("%s...", Localization.lang("Saving library")));
         }
@@ -230,40 +234,46 @@ public class SaveDatabaseAction {
 
     private boolean saveDatabase(Path file, boolean selectedOnly, Charset encoding, BibDatabaseWriter.SaveType saveType) throws SaveException {
         // if this code is adapted, please also adapt org.jabref.logic.autosaveandbackup.BackupManager.performBackup
+        IntegrityCheck integrityCheck = new IntegrityCheck(libraryTab.getBibDatabaseContext());
+        List<IntegrityMessage> errors = integrityCheck.checkDatabase(libraryTab.getDatabase());
+        if (errors.isEmpty()) {
+            SaveConfiguration saveConfiguration = new SaveConfiguration()
+                                                                         .withSaveType(saveType)
+                                                                         .withMetadataSaveOrder(true)
+                                                                         .withReformatOnSave(preferences.getLibraryPreferences().shouldAlwaysReformatOnSave());
+            BibDatabaseContext bibDatabaseContext = libraryTab.getBibDatabaseContext();
 
-        SaveConfiguration saveConfiguration = new SaveConfiguration()
-                .withSaveType(saveType)
-                .withMetadataSaveOrder(true)
-                .withReformatOnSave(preferences.getLibraryPreferences().shouldAlwaysReformatOnSave());
-        BibDatabaseContext bibDatabaseContext = libraryTab.getBibDatabaseContext();
-        synchronized (bibDatabaseContext) {
-            try (AtomicFileWriter fileWriter = new AtomicFileWriter(file, encoding, saveConfiguration.shouldMakeBackup())) {
-                BibWriter bibWriter = new BibWriter(fileWriter, bibDatabaseContext.getDatabase().getNewLineSeparator());
-                BibtexDatabaseWriter databaseWriter = new BibtexDatabaseWriter(
-                        bibWriter,
-                        saveConfiguration,
-                        preferences.getFieldPreferences(),
-                        preferences.getCitationKeyPatternPreferences(),
-                        entryTypesManager);
+            synchronized (bibDatabaseContext) {
 
-                if (selectedOnly) {
-                    databaseWriter.savePartOfDatabase(bibDatabaseContext, libraryTab.getSelectedEntries());
-                } else {
-                    databaseWriter.saveDatabase(bibDatabaseContext);
+                try (AtomicFileWriter fileWriter = new AtomicFileWriter(file, encoding, saveConfiguration.shouldMakeBackup())) {
+                    BibWriter bibWriter = new BibWriter(fileWriter, bibDatabaseContext.getDatabase().getNewLineSeparator());
+                    BibtexDatabaseWriter databaseWriter = new BibtexDatabaseWriter(
+                                                                                   bibWriter,
+                                                                                   saveConfiguration,
+                                                                                   preferences.getFieldPreferences(),
+                                                                                   preferences.getCitationKeyPatternPreferences(),
+                                                                                   entryTypesManager);
+
+                    if (selectedOnly) {
+                        databaseWriter.savePartOfDatabase(bibDatabaseContext, libraryTab.getSelectedEntries());
+                    } else {
+                        databaseWriter.saveDatabase(bibDatabaseContext);
+                    }
+
+                    libraryTab.registerUndoableChanges(databaseWriter.getSaveActionsFieldChanges());
+
+                    if (fileWriter.hasEncodingProblems()) {
+                        saveWithDifferentEncoding(file, selectedOnly, encoding, fileWriter.getEncodingProblems(), saveType);
+                    }
+                } catch (UnsupportedCharsetException ex) {
+                    throw new SaveException(Localization.lang("Character encoding '%0' is not supported.", encoding.displayName()), ex);
+                } catch (IOException ex) {
+                    throw new SaveException("Problems saving: " + ex, ex);
                 }
-
-                libraryTab.registerUndoableChanges(databaseWriter.getSaveActionsFieldChanges());
-
-                if (fileWriter.hasEncodingProblems()) {
-                    saveWithDifferentEncoding(file, selectedOnly, encoding, fileWriter.getEncodingProblems(), saveType);
-                }
-            } catch (UnsupportedCharsetException ex) {
-                throw new SaveException(Localization.lang("Character encoding '%0' is not supported.", encoding.displayName()), ex);
-            } catch (IOException ex) {
-                throw new SaveException("Problems saving: " + ex, ex);
+                return true;
             }
-            return true;
         }
+        return false;
     }
 
     private void saveWithDifferentEncoding(Path file, boolean selectedOnly, Charset encoding, Set<Character> encodingProblems, BibDatabaseWriter.SaveType saveType) throws SaveException {

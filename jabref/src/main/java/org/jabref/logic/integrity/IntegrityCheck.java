@@ -3,6 +3,7 @@ package org.jabref.logic.integrity;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import org.jabref.logic.citationkeypattern.CitationKeyPatternPreferences;
 import org.jabref.logic.journals.JournalAbbreviationRepository;
@@ -53,6 +54,12 @@ public class IntegrityCheck {
                     new BibTeXEntryTypeChecker())
             );
         }
+    }
+
+    public IntegrityCheck(BibDatabaseContext bibDatabaseContext) {
+        this.bibDatabaseContext = Objects.requireNonNull(bibDatabaseContext);
+        this.fieldCheckers = null;
+        this.entryCheckers = null;
     }
 
     List<IntegrityMessage> check() {
