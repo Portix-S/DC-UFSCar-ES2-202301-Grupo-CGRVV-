@@ -3,6 +3,7 @@ package org.jabref.model.entry;
 import java.text.ParseException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -504,11 +505,15 @@ public class BibEntry implements Cloneable {
             try {
                 DateFormat dataTeste = new SimpleDateFormat("yyyy");
                 dataTeste.setLenient(false);
-                teste = dataTeste.parse(date.get().getNormalized());
-                System.out.println(teste);
+                String newDate = date.get().getNormalized();
+                int today = LocalDate.now().getYear() + 10;
+                if ((Integer.parseInt(newDate)) > today)
+                {
+                    return Optional.of(Localization.lang("should be a year between 0 - " + today));
+                }
+                teste = dataTeste.parse(newDate);
             } catch (ParseException e)
             {
-                e.printStackTrace();
                 return Optional.of(Localization.lang("should contain a four digit number"));
             }
 
