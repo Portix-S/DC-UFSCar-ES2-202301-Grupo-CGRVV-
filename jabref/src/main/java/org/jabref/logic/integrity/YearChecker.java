@@ -47,12 +47,12 @@ public class YearChecker implements ValueChecker {
             return Optional.of(Localization.lang("should contain a four positive digit number"));
         }
         int today = LocalDate.now().getYear() + 10;
-        if (((value.length() > 4) || ((Integer.parseInt(value) < 0))) && !StringUtil.isBlank(value)) {
+        if (((value.length() > 4) || ((Integer.parseInt(value) < 1))) && !StringUtil.isBlank(value)) {
             return Optional.of(Localization.lang("should contain a four positive digit number"));
         }
 
         if ((Integer.parseInt(value) > (today)) && !StringUtil.isBlank(value)) {
-            return Optional.of(Localization.lang("should be a year between 0 - " + today));
+            return Optional.of(Localization.lang("should be a year between 1 - " + today));
         }
 
 
