@@ -1,5 +1,8 @@
 package org.jabref.model.entry;
 
+import java.text.ParseException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -25,6 +28,7 @@ import javafx.collections.ObservableMap;
 import org.jabref.architecture.AllowedToUseLogic;
 import org.jabref.logic.bibtex.FileFieldWriter;
 import org.jabref.logic.importer.util.FileFieldParser;
+import org.jabref.logic.l10n.Localization;
 import org.jabref.model.FieldChange;
 import org.jabref.model.database.BibDatabase;
 import org.jabref.model.entry.event.EntriesEventSource;
@@ -385,8 +389,17 @@ public class BibEntry implements Cloneable {
     public Optional<String> getCitationKey() {
         String key = fields.get(InternalField.KEY_FIELD);
         if (StringUtil.isBlank(key)) {
+
             return Optional.empty();
         } else {
+
+            if (!(((key.charAt(0) >= 'A') && (key.charAt(0) <= 'Z'))
+                  || ((key.charAt(0) >= 'a') && (key.charAt(0) <= 'z')))
+                || ((key.length() < 2))) {
+
+                return Optional.of(Localization.lang("please, insert a key with 2 or more characters, that starts with [a-z/A-Z]"));
+            }
+
             return Optional.of(key);
         }
     }
@@ -481,21 +494,36 @@ public class BibEntry implements Cloneable {
 
         // Finally, handle dates
         if (StandardField.DATE == field) {
+            Object teste = null;
+
+
             Optional<Date> date = Date.parse(
                     getFieldValue.apply(this, StandardField.YEAR),
                     getFieldValue.apply(this, StandardField.MONTH),
                     getFieldValue.apply(this, StandardField.DAY));
+            try {
+                DateFormat dataTeste = new SimpleDateFormat("yyyy");
+                dataTeste.setLenient(false);
+                teste = dataTeste.parse(date.get().getNormalized());
+                System.out.println(teste);
+            } catch (ParseException e)
+            {
+                e.printStackTrace();
+                return Optional.of(Localization.lang("should contain a four digit number"));
+            }
 
             return date.map(Date::getNormalized);
         }
 
         if ((StandardField.YEAR == field) || (StandardField.MONTH == field) || (StandardField.DAY == field)) {
             Optional<String> date = getFieldValue.apply(this, StandardField.DATE);
+            System.out.println("Data get: " + date);
             if (date.isEmpty()) {
                 return Optional.empty();
             }
 
             Optional<Date> parsedDate = Date.parse(date.get());
+            System.out.println("Data: " + parsedDate);
             if (parsedDate.isPresent()) {
                 if (StandardField.YEAR == field) {
                     return parsedDate.get().getYear().map(Object::toString);

@@ -12,6 +12,7 @@ import org.jabref.model.strings.StringUtil;
 
 /**
  * Currently only checks the key if there is an author, year, and title present.
+ *
  */
 public class CitationKeyChecker implements EntryChecker {
 

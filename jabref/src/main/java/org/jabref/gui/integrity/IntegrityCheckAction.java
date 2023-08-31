@@ -26,6 +26,7 @@ public class IntegrityCheckAction extends SimpleCommand {
     private final DialogService dialogService;
     private final JabRefFrame frame;
     private final StateManager stateManager;
+    public List<IntegrityMessage> haveErrors;
 
     public IntegrityCheckAction(JabRefFrame frame, StateManager stateManager, TaskExecutor taskExecutor) {
         this.frame = frame;
@@ -44,25 +45,24 @@ public class IntegrityCheckAction extends SimpleCommand {
                 Globals.prefs.getCitationKeyPatternPreferences(),
                 Globals.journalAbbreviationRepository,
                 Globals.prefs.getEntryEditorPreferences().shouldAllowIntegerEditionBibtex());
-
         Task<List<IntegrityMessage>> task = new Task<>() {
             @Override
             protected List<IntegrityMessage> call() {
-                List<IntegrityMessage> result = new ArrayList<>();
+                haveErrors = new ArrayList<>();
 
                 ObservableList<BibEntry> entries = database.getDatabase().getEntries();
-                result.addAll(check.checkDatabase(database.getDatabase()));
+                haveErrors.addAll(check.checkDatabase(database.getDatabase()));
                 for (int i = 0; i < entries.size(); i++) {
                     if (isCancelled()) {
                         break;
                     }
 
                     BibEntry entry = entries.get(i);
-                    result.addAll(check.checkEntry(entry));
+                    haveErrors.addAll(check.checkEntry(entry));
                     updateProgress(i, entries.size());
                 }
 
-                return result;
+                return haveErrors;
             }
         };
         task.setOnSucceeded(value -> {

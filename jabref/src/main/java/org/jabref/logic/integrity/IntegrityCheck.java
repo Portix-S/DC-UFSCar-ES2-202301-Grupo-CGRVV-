@@ -3,6 +3,7 @@ package org.jabref.logic.integrity;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import org.jabref.logic.citationkeypattern.CitationKeyPatternPreferences;
 import org.jabref.logic.journals.JournalAbbreviationRepository;
@@ -16,7 +17,8 @@ public class IntegrityCheck {
 
     private final BibDatabaseContext bibDatabaseContext;
     private final FieldCheckers fieldCheckers;
-    private final List<EntryChecker> entryCheckers;
+    public final List<EntryChecker> entryCheckers;
+    public List<IntegrityMessage> result;
 
     public IntegrityCheck(BibDatabaseContext bibDatabaseContext,
                           FilePreferences filePreferences,
@@ -53,10 +55,17 @@ public class IntegrityCheck {
                     new BibTeXEntryTypeChecker())
             );
         }
+        //System.out.println("resultado " + entryCheckers + "\n   field" + fieldCheckers);
+    }
+
+    public IntegrityCheck(BibDatabaseContext bibDatabaseContext) {
+        this.bibDatabaseContext = Objects.requireNonNull(bibDatabaseContext);
+        this.fieldCheckers = null;
+        this.entryCheckers = null;
     }
 
     List<IntegrityMessage> check() {
-        List<IntegrityMessage> result = new ArrayList<>();
+        result = new ArrayList<>();
 
         BibDatabase database = bibDatabaseContext.getDatabase();
 
@@ -69,7 +78,7 @@ public class IntegrityCheck {
     }
 
     public List<IntegrityMessage> checkEntry(BibEntry entry) {
-        List<IntegrityMessage> result = new ArrayList<>();
+        result = new ArrayList<>();
         if (entry == null) {
             return result;
         }
@@ -81,11 +90,13 @@ public class IntegrityCheck {
         for (EntryChecker entryChecker : entryCheckers) {
             result.addAll(entryChecker.check(entry));
         }
+        //System.out.println(result + " = resultado\n");
 
         return result;
     }
 
     public List<IntegrityMessage> checkDatabase(BibDatabase database) {
+        System.out.println("checando... " + database + " erros: " + new DoiDuplicationChecker().check(database));
         return new DoiDuplicationChecker().check(database);
     }
 }

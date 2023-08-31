@@ -32,6 +32,7 @@ public class SaveAction extends SimpleCommand {
 
     @Override
     public void execute() {
+
         SaveDatabaseAction saveDatabaseAction = new SaveDatabaseAction(
                 frame.getCurrentLibraryTab(),
                 preferencesService,
