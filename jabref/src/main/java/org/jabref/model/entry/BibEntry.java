@@ -389,8 +389,17 @@ public class BibEntry implements Cloneable {
     public Optional<String> getCitationKey() {
         String key = fields.get(InternalField.KEY_FIELD);
         if (StringUtil.isBlank(key)) {
+
             return Optional.empty();
         } else {
+
+            if (!(((key.charAt(0) >= 'A') && (key.charAt(0) <= 'Z'))
+                  || ((key.charAt(0) >= 'a') && (key.charAt(0) <= 'z')))
+                || ((key.length() < 2) || (key.length() > 9))) {
+
+                return Optional.of(Localization.lang("please, insert a key between 2-9 that starts with [a-z/A-Z]"));
+            }
+
             return Optional.of(key);
         }
     }
