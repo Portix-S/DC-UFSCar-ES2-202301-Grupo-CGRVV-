@@ -509,7 +509,7 @@ public class BibEntry implements Cloneable {
                 int today = LocalDate.now().getYear() + 10;
                 if ((Integer.parseInt(newDate)) > today)
                 {
-                    return Optional.of(Localization.lang("should be a year between 0 - " + today));
+                    return Optional.of(Localization.lang("should be a year between 1 - " + today));
                 }
                 teste = dataTeste.parse(newDate);
             } catch (ParseException e)
