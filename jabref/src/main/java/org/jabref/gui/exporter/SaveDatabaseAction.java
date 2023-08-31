@@ -32,6 +32,7 @@ import org.jabref.logic.exporter.SaveConfiguration;
 import org.jabref.logic.exporter.SaveException;
 import org.jabref.logic.integrity.IntegrityCheck;
 import org.jabref.logic.integrity.IntegrityMessage;
+import org.jabref.gui.integrity.IntegrityCheckAction;
 import org.jabref.logic.l10n.Encodings;
 import org.jabref.logic.l10n.Localization;
 import org.jabref.logic.shared.DatabaseLocation;
@@ -39,12 +40,13 @@ import org.jabref.logic.shared.prefs.SharedDatabasePreferences;
 import org.jabref.logic.util.StandardFileType;
 import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.database.event.ChangePropagation;
+import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.BibEntryTypesManager;
 import org.jabref.preferences.PreferencesService;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
+import org.jabref.gui.Globals;
 /**
  * Action for the "Save" and "Save as" operations called from BasePanel. This class is also used for save operations
  * when closing a database or quitting the applications.
@@ -191,52 +193,64 @@ public class SaveDatabaseAction {
     }
 
     private boolean save(Path targetPath, SaveDatabaseMode mode) {
+        IntegrityCheck integrityCheck = new IntegrityCheck(libraryTab.getBibDatabaseContext(), Globals.prefs.getFilePreferences(), Globals.prefs.getCitationKeyPatternPreferences(),
+                                                           Globals.journalAbbreviationRepository,
+                                                           Globals.prefs.getEntryEditorPreferences().shouldAllowIntegerEditionBibtex());
+        List<BibEntry> entries = libraryTab.getBibDatabaseContext().getEntries();
+        List<IntegrityMessage> erros = integrityCheck.checkEntry(entries.get(0));
 
-        if (mode == SaveDatabaseMode.NORMAL) {
-            dialogService.notify(String.format("%s...", Localization.lang("Saving library")));
+        for (int i = 0; i < entries.size(); i++) {
+            erros.addAll(integrityCheck.checkEntry(entries.get(i)));
         }
-
-        synchronized (libraryTab) {
-            if (libraryTab.isSaving()) {
-                // if another thread is saving, we do not need to save
-                return true;
+        if (erros.isEmpty()) {
+            if (mode == SaveDatabaseMode.NORMAL) {
+                dialogService.notify(String.format("%s...", Localization.lang("Saving library")));
             }
-            libraryTab.setSaving(true);
-        }
 
-        try {
-            Charset encoding = libraryTab.getBibDatabaseContext()
-                                         .getMetaData()
-                                         .getEncoding()
-                                         .orElse(StandardCharsets.UTF_8);
-
-            // Make sure to remember which encoding we used
-            libraryTab.getBibDatabaseContext().getMetaData().setEncoding(encoding, ChangePropagation.DO_NOT_POST_EVENT);
-
-            // Save the database
-            boolean success = saveDatabase(targetPath, false, encoding, BibDatabaseWriter.SaveType.ALL);
-
-            if (success) {
-                libraryTab.getUndoManager().markUnchanged();
-                libraryTab.resetChangedProperties();
+            synchronized (libraryTab) {
+                if (libraryTab.isSaving()) {
+                    // if another thread is saving, we do not need to save
+                    return true;
+                }
+                libraryTab.setSaving(true);
             }
-            dialogService.notify(Localization.lang("Library saved"));
-            return success;
-        } catch (SaveException ex) {
-            LOGGER.error(String.format("A problem occurred when trying to save the file %s", targetPath), ex);
-            dialogService.showErrorDialogAndWait(Localization.lang("Save library"), Localization.lang("Could not save file."), ex);
-            return false;
-        } finally {
-            // release panel from save status
-            libraryTab.setSaving(false);
+
+            try {
+                Charset encoding = libraryTab.getBibDatabaseContext()
+                                             .getMetaData()
+                                             .getEncoding()
+                                             .orElse(StandardCharsets.UTF_8);
+
+                // Make sure to remember which encoding we used
+                libraryTab.getBibDatabaseContext().getMetaData().setEncoding(encoding, ChangePropagation.DO_NOT_POST_EVENT);
+
+                // Save the database
+                boolean success = saveDatabase(targetPath, false, encoding, BibDatabaseWriter.SaveType.ALL);
+
+                if (success) {
+                    libraryTab.getUndoManager().markUnchanged();
+                    libraryTab.resetChangedProperties();
+                }
+                dialogService.notify(Localization.lang("Library saved"));
+                return success;
+            } catch (SaveException ex) {
+                LOGGER.error(String.format("A problem occurred when trying to save the file %s", targetPath), ex);
+                dialogService.showErrorDialogAndWait(Localization.lang("Save library"), Localization.lang("Could not save file."), ex);
+                return false;
+            } finally {
+                // release panel from save status
+                libraryTab.setSaving(false);
+            }
         }
+        else {
+            IntegrityCheckAction testInt = new IntegrityCheckAction(frame, Globals.stateManager, Globals.TASK_EXECUTOR);
+            testInt.execute();
+        }
+        return false;
     }
 
     private boolean saveDatabase(Path file, boolean selectedOnly, Charset encoding, BibDatabaseWriter.SaveType saveType) throws SaveException {
         // if this code is adapted, please also adapt org.jabref.logic.autosaveandbackup.BackupManager.performBackup
-        IntegrityCheck integrityCheck = new IntegrityCheck(libraryTab.getBibDatabaseContext());
-        List<IntegrityMessage> errors = integrityCheck.checkDatabase(libraryTab.getDatabase());
-        if (errors.isEmpty()) {
             SaveConfiguration saveConfiguration = new SaveConfiguration()
                                                                          .withSaveType(saveType)
                                                                          .withMetadataSaveOrder(true)
@@ -272,8 +286,6 @@ public class SaveDatabaseAction {
                 }
                 return true;
             }
-        }
-        return false;
     }
 
     private void saveWithDifferentEncoding(Path file, boolean selectedOnly, Charset encoding, Set<Character> encodingProblems, BibDatabaseWriter.SaveType saveType) throws SaveException {

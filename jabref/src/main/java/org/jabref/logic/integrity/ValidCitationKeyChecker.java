@@ -25,9 +25,9 @@ public class ValidCitationKeyChecker implements ValueChecker {
 
         if (!(((value.charAt(0) >= 'A') && (value.charAt(0) <= 'Z'))
               || ((value.charAt(0) >= 'a') && (value.charAt(0) <= 'z')))
-            || ((value.length() < 2) || (value.length() > 9))) {
+            || ((value.length() < 2))) {
 
-            return Optional.of(Localization.lang("please, insert a key between 2-9 that starts with [a-z/A-Z]"));
+            return Optional.of(Localization.lang("please, insert a key with 2 or more characters, that starts with [a-z/A-Z]"));
         }
 
 

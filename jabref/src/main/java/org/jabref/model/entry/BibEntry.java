@@ -395,9 +395,9 @@ public class BibEntry implements Cloneable {
 
             if (!(((key.charAt(0) >= 'A') && (key.charAt(0) <= 'Z'))
                   || ((key.charAt(0) >= 'a') && (key.charAt(0) <= 'z')))
-                || ((key.length() < 2) || (key.length() > 9))) {
+                || ((key.length() < 2))) {
 
-                return Optional.of(Localization.lang("please, insert a key between 2-9 that starts with [a-z/A-Z]"));
+                return Optional.of(Localization.lang("please, insert a key with 2 or more characters, that starts with [a-z/A-Z]"));
             }
 
             return Optional.of(key);
@@ -536,7 +536,6 @@ public class BibEntry implements Cloneable {
                 }
             } else {
                 // Date field not in valid format
-                System.out.println("Deu ruim");
                 LOGGER.debug("Could not parse date {}", date.get());
                 return Optional.empty();
             }
