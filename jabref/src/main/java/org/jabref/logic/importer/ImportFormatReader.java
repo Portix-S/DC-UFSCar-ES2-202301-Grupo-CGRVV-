@@ -14,6 +14,9 @@ import org.jabref.logic.importer.fileformat.BibtexImporter;
 import org.jabref.logic.importer.fileformat.CffImporter;
 import org.jabref.logic.importer.fileformat.CitaviXmlImporter;
 import org.jabref.logic.importer.fileformat.CopacImporter;
+// CSV IMPORTER
+import org.jabref.logic.importer.fileformat.CsvImporter;
+// ----------------
 import org.jabref.logic.importer.fileformat.EndnoteImporter;
 import org.jabref.logic.importer.fileformat.EndnoteXmlImporter;
 import org.jabref.logic.importer.fileformat.InspecImporter;
@@ -62,6 +65,9 @@ public class ImportFormatReader {
 
     public void reset() {
         formats.add(new CopacImporter());
+        // CSV IMPORTER
+        formats.add(new CsvImporter());
+        // ----------------
         formats.add(new EndnoteImporter(importFormatPreferences));
         formats.add(new EndnoteXmlImporter(importFormatPreferences));
         formats.add(new InspecImporter());

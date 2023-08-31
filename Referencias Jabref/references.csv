@@ -1,0 +1,7 @@
+type;title;publisher;year;author;editor;bibtexkey
+Book;Guia Do Mochileiro das Galáxias;Arqueiro;1979;Douglas Adams;;Adams1979
+Book;Restaurante no Fim do Universo;Arqueiro;1985;Douglas Adams;;Adams1985
+Book;A Vida, O Universo e Tudo Mais;Arqueiro;1987;Douglas Adams;;Adams1987
+Book;Até Mais, e Obrigado Pelos Peixes;Arqueiro;1990;Douglas Adams;;Adams1990
+Book;Praticamente Inofensiva;Arqueiro;1992;Douglas Adams;;Adams1992
+InBook;Teste;Arqueiro;2000;Autor Novo;;Novo2000
